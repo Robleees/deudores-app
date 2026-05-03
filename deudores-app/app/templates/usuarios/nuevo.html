@@ -1,0 +1,109 @@
+{% extends 'base.html' %}
+
+{% block title %}Nuevo usuario — Gestor de Deudas{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-12 col-md-7 col-lg-6">
+
+    <nav aria-label="breadcrumb" class="mb-3">
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item">
+          <a href="{{ url_for('usuarios.index') }}">Usuarios</a>
+        </li>
+        <li class="breadcrumb-item active">Nuevo usuario</li>
+      </ol>
+    </nav>
+
+    <div class="card shadow-sm">
+      <div class="card-header fw-semibold">Crear nuevo usuario</div>
+      <div class="card-body p-4">
+
+        <form method="post" action="{{ url_for('usuarios.nuevo') }}" novalidate>
+
+          <div class="mb-3">
+            <label for="nombre" class="form-label">Nombre <span class="text-danger">*</span></label>
+            <input
+              type="text"
+              id="nombre"
+              name="nombre"
+              class="form-control"
+              value="{{ form.get('nombre', '') }}"
+              maxlength="150"
+              required
+              autofocus
+            >
+          </div>
+
+          <div class="mb-3">
+            <label for="username" class="form-label">Nombre de usuario <span class="text-danger">*</span></label>
+            <input
+              type="text"
+              id="username"
+              name="username"
+              class="form-control"
+              value="{{ form.get('username', '') }}"
+              maxlength="80"
+              autocomplete="off"
+              required
+            >
+          </div>
+
+          <div class="mb-3">
+            <label for="password" class="form-label">Contraseña <span class="text-danger">*</span></label>
+            <input
+              type="password"
+              id="password"
+              name="password"
+              class="form-control"
+              autocomplete="new-password"
+              required
+            >
+          </div>
+
+          <div class="mb-3">
+            <label for="rol" class="form-label">Rol <span class="text-danger">*</span></label>
+            <select id="rol" name="rol" class="form-select" required onchange="toggleCircuito(this.value)">
+              <option value="" disabled {% if not form.get('rol') %}selected{% endif %}>Selecciona un rol</option>
+              <option value="admin_global" {% if form.get('rol') == 'admin_global' %}selected{% endif %}>
+                Admin global
+              </option>
+              <option value="usuario" {% if form.get('rol') == 'usuario' %}selected{% endif %}>
+                Usuario
+              </option>
+            </select>
+          </div>
+
+          <div class="mb-4" id="campo-circuito" style="display: none;">
+            <label for="circuito_id" class="form-label">Circuito <span class="text-danger">*</span></label>
+            <select id="circuito_id" name="circuito_id" class="form-select">
+              <option value="">— Sin circuito —</option>
+              {% for c in circuitos %}
+              <option value="{{ c.id }}" {% if form.get('circuito_id') == c.id|string %}selected{% endif %}>
+                {{ c.nombre }}
+              </option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <div class="d-flex gap-2">
+            <button type="submit" class="btn btn-dark">Crear usuario</button>
+            <a href="{{ url_for('usuarios.index') }}" class="btn btn-outline-secondary">Cancelar</a>
+          </div>
+
+        </form>
+      </div>
+    </div>
+
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  function toggleCircuito(rol) {
+    document.getElementById('campo-circuito').style.display =
+      rol === 'admin_local' ? 'block' : 'none';
+  }
+</script>
+{% endblock %}

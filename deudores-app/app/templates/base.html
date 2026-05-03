@@ -40,6 +40,11 @@
           <li class="nav-item">
             <a class="nav-link" href="{{ url_for('circuitos.index') }}">Circuitos</a>
           </li>
+          {% if session.get('rol') == 'admin_global' %}
+          <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('usuarios.index') }}">Usuarios</a>
+          </li>
+          {% endif %}
         </ul>
 
         {% if session.get('usuario_id') and usuario is defined %}
@@ -49,7 +54,7 @@
             {% if usuario.es_global %}
               <span class="badge bg-warning text-dark ms-1">GLOBAL</span>
             {% else %}
-              <span class="badge bg-secondary ms-1">LOCAL</span>
+              <span class="badge bg-secondary ms-1">USUARIO</span>
             {% endif %}
           </span>
           <a

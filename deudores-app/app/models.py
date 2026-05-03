@@ -21,13 +21,13 @@ class Usuario(db.Model):
     __tablename__ = 'usuarios'
 
     ROL_GLOBAL = 'admin_global'
-    ROL_LOCAL = 'admin_local'
+    ROL_NORMAL = 'usuario'
 
     id = db.Column(db.Integer, primary_key=True)
     nombre = db.Column(db.String(150), nullable=False)
     username = db.Column(db.String(80), nullable=False, unique=True)
     password_hash = db.Column(db.String(256), nullable=False)
-    rol = db.Column(db.String(20), nullable=False, default=ROL_LOCAL)
+    rol = db.Column(db.String(20), nullable=False, default=ROL_NORMAL)
     circuito_id = db.Column(db.Integer, db.ForeignKey('circuitos.id'), nullable=True)
 
     transacciones = db.relationship('Transaccion', backref='usuario', lazy='dynamic')
@@ -35,6 +35,10 @@ class Usuario(db.Model):
     @property
     def es_global(self):
         return self.rol == self.ROL_GLOBAL
+
+    @property
+    def es_normal(self):
+        return self.rol == self.ROL_NORMAL
 
     def __repr__(self):
         return f'<Usuario {self.username} ({self.rol})>'

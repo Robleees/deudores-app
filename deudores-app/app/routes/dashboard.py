@@ -16,19 +16,12 @@ def _get_usuario_actual():
 def index():
     usuario = _get_usuario_actual()
 
-    if usuario.es_global:
-        circuitos = db.session.execute(
-            db.select(Circuito).order_by(Circuito.nombre)
-        ).scalars().all()
-        casas_activas = db.session.execute(
-            db.select(Casa).filter_by(activa=True)
-        ).scalars().all()
-    else:
-        circuito = db.session.get(Circuito, usuario.circuito_id)
-        circuitos = [circuito] if circuito else []
-        casas_activas = db.session.execute(
-            db.select(Casa).filter_by(activa=True, circuito_id=usuario.circuito_id)
-        ).scalars().all()
+    circuitos = db.session.execute(
+        db.select(Circuito).order_by(Circuito.nombre)
+    ).scalars().all()
+    casas_activas = db.session.execute(
+        db.select(Casa).filter_by(activa=True)
+    ).scalars().all()
 
     saldos = {casa.id: casa.saldo_actual() for casa in casas_activas}
 

@@ -24,10 +24,12 @@
     <p class="text-muted mb-0">{{ casa.direccion }}</p>
     <p class="text-muted small mb-3">{{ casa.num_personas }} persona{% if casa.num_personas != 1 %}s{% endif %}</p>
     <div class="d-flex gap-2 flex-wrap">
+      {% if usuario.es_global %}
       <a
         href="{{ url_for('casas.editar', casa_id=casa.id) }}"
         class="btn btn-outline-dark btn-sm"
       >Editar casa</a>
+      {% endif %}
       {% if usuario.es_global %}
       <form
         method="post"

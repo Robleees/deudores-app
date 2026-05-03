@@ -13,12 +13,6 @@ def _get_usuario_actual():
     return db.session.get(Usuario, session['usuario_id'])
 
 
-def _verificar_acceso_circuito(usuario, circuito_id):
-    """Aborta con 403 si el admin_local intenta operar fuera de su circuito."""
-    if not usuario.es_global and usuario.circuito_id != circuito_id:
-        abort(403)
-
-
 @casas_bp.route('/buscar')
 @login_required
 def buscar():
@@ -37,11 +31,7 @@ def buscar():
         )
     )
 
-    if not usuario.es_global:
-        consulta = consulta.filter(Casa.circuito_id == usuario.circuito_id)
-
     resultados = db.session.execute(consulta.order_by(Casa.nombre_familia)).scalars().all()
-
     return render_template('casas/buscar.html', resultados=resultados, q=q, usuario=usuario)
 
 
@@ -53,8 +43,6 @@ def detalle(casa_id):
     casa = db.session.get(Casa, casa_id)
     if casa is None:
         abort(404)
-
-    _verificar_acceso_circuito(usuario, casa.circuito_id)
 
     transacciones = (
         db.session.execute(
@@ -88,8 +76,6 @@ def nueva():
     circuito = db.session.get(Circuito, circuito_id)
     if circuito is None:
         abort(404)
-
-    _verificar_acceso_circuito(usuario, circuito_id)
 
     if request.method == 'POST':
         nombre_familia = request.form.get('nombre_familia', '').strip()
@@ -143,8 +129,6 @@ def editar(casa_id):
     casa = db.session.get(Casa, casa_id)
     if casa is None:
         abort(404)
-
-    _verificar_acceso_circuito(usuario, casa.circuito_id)
 
     if request.method == 'POST':
         nombre_familia = request.form.get('nombre_familia', '').strip()
@@ -211,8 +195,6 @@ def registrar_transaccion(casa_id):
     casa = db.session.get(Casa, casa_id)
     if casa is None:
         abort(404)
-
-    _verificar_acceso_circuito(usuario, casa.circuito_id)
 
     tipo = request.form.get('tipo', '').strip()
     monto_raw = request.form.get('monto', '').strip()

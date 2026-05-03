@@ -21,11 +21,13 @@ def create_app():
     from app.routes.circuitos import circuitos_bp
     from app.routes.casas import casas_bp
     from app.routes.dashboard import dashboard_bp
+    from app.routes.usuarios import usuarios_bp
 
     app.register_blueprint(auth_bp)
     app.register_blueprint(circuitos_bp)
     app.register_blueprint(casas_bp)
     app.register_blueprint(dashboard_bp)
+    app.register_blueprint(usuarios_bp)
 
     @app.route('/')
     def index():

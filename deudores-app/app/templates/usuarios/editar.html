@@ -1,0 +1,95 @@
+{% extends 'base.html' %}
+
+{% block title %}Editar {{ objetivo.username }} — Gestor de Deudas{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-12 col-md-7 col-lg-6">
+
+    <nav aria-label="breadcrumb" class="mb-3">
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item">
+          <a href="{{ url_for('usuarios.index') }}">Usuarios</a>
+        </li>
+        <li class="breadcrumb-item active">{{ objetivo.username }}</li>
+      </ol>
+    </nav>
+
+    <div class="card shadow-sm">
+      <div class="card-header fw-semibold">Editar usuario</div>
+      <div class="card-body p-4">
+
+        <p class="text-muted small mb-4">
+          Usuario: <strong>{{ objetivo.username }}</strong>
+          &nbsp;·&nbsp; Para cambiar la contraseña usa otra sección.
+        </p>
+
+        <form
+          method="post"
+          action="{{ url_for('usuarios.editar', usuario_id=objetivo.id) }}"
+          novalidate
+        >
+
+          <div class="mb-3">
+            <label for="nombre" class="form-label">Nombre <span class="text-danger">*</span></label>
+            <input
+              type="text"
+              id="nombre"
+              name="nombre"
+              class="form-control"
+              value="{{ form.get('nombre', objetivo.nombre) if form else objetivo.nombre }}"
+              maxlength="150"
+              required
+              autofocus
+            >
+          </div>
+
+          {% set rol_actual = form.get('rol', objetivo.rol) if form else objetivo.rol %}
+
+          <div class="mb-3">
+            <label for="rol" class="form-label">Rol <span class="text-danger">*</span></label>
+            <select id="rol" name="rol" class="form-select" required onchange="toggleCircuito(this.value)">
+              <option value="admin_global" {% if rol_actual == 'admin_global' %}selected{% endif %}>
+                Admin global
+              </option>
+              <option value="usuario" {% if rol_actual == 'usuario' %}selected{% endif %}>
+                Usuario
+              </option>
+            </select>
+          </div>
+
+          {% set circuito_id_actual = (form.get('circuito_id') if form else none) or (objetivo.circuito_id|string if objetivo.circuito_id else '') %}
+
+          <div class="mb-4" id="campo-circuito" style="display: none;">
+            <label for="circuito_id" class="form-label">Circuito <span class="text-danger">*</span></label>
+            <select id="circuito_id" name="circuito_id" class="form-select">
+              <option value="">— Sin circuito —</option>
+              {% for c in circuitos %}
+              <option value="{{ c.id }}" {% if circuito_id_actual == c.id|string %}selected{% endif %}>
+                {{ c.nombre }}
+              </option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <div class="d-flex gap-2">
+            <button type="submit" class="btn btn-dark">Guardar cambios</button>
+            <a href="{{ url_for('usuarios.index') }}" class="btn btn-outline-secondary">Cancelar</a>
+          </div>
+
+        </form>
+      </div>
+    </div>
+
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  function toggleCircuito(rol) {
+    document.getElementById('campo-circuito').style.display =
+      rol === 'admin_local' ? 'block' : 'none';
+  }
+</script>
+{% endblock %}

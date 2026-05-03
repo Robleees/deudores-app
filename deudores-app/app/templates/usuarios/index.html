@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+
+{% block title %}Usuarios — Gestor de Deudas{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h2 class="h4 fw-bold mb-0">Usuarios</h2>
+  <a href="{{ url_for('usuarios.nuevo') }}" class="btn btn-dark btn-sm">+ Nuevo usuario</a>
+</div>
+
+{% if usuarios %}
+<div class="card shadow-sm">
+  <div class="table-responsive">
+    <table class="table table-hover align-middle mb-0">
+      <thead class="table-light">
+        <tr>
+          <th>Nombre</th>
+          <th>Usuario</th>
+          <th>Rol</th>
+          <th>Circuito</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for u in usuarios %}
+        <tr>
+          <td class="fw-semibold">{{ u.nombre }}</td>
+          <td class="text-muted small">{{ u.username }}</td>
+          <td>
+            {% if u.rol == 'admin_global' %}
+              <span class="badge bg-warning text-dark">GLOBAL</span>
+            {% else %}
+              <span class="badge bg-secondary">USUARIO</span>
+            {% endif %}
+          </td>
+          <td class="text-muted small">
+            {{ u.circuito.nombre if u.circuito else '—' }}
+          </td>
+          <td class="text-end">
+            <a
+              href="{{ url_for('usuarios.editar', usuario_id=u.id) }}"
+              class="btn btn-outline-dark btn-sm"
+            >Editar</a>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+{% else %}
+<div class="text-center py-5">
+  <p class="text-muted">No hay usuarios registrados.</p>
+  <a href="{{ url_for('usuarios.nuevo') }}" class="btn btn-dark mt-2">Crear primer usuario</a>
+</div>
+{% endif %}
+{% endblock %}

@@ -15,13 +15,7 @@ def _get_usuario_actual():
 @login_required
 def index():
     usuario = _get_usuario_actual()
-
-    if usuario.es_global:
-        circuitos = db.session.execute(db.select(Circuito).order_by(Circuito.nombre)).scalars().all()
-    else:
-        circuito = db.session.get(Circuito, usuario.circuito_id)
-        circuitos = [circuito] if circuito else []
-
+    circuitos = db.session.execute(db.select(Circuito).order_by(Circuito.nombre)).scalars().all()
     return render_template('circuitos/index.html', circuitos=circuitos, usuario=usuario)
 
 
@@ -29,9 +23,6 @@ def index():
 @login_required
 def detalle(circuito_id):
     usuario = _get_usuario_actual()
-
-    if not usuario.es_global and usuario.circuito_id != circuito_id:
-        abort(403)
 
     circuito = db.session.get(Circuito, circuito_id)
     if circuito is None:
