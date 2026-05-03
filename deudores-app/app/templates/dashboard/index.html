@@ -54,6 +54,13 @@
 
 </div>
 
+<div class="card shadow-sm mb-4">
+  <div class="card-header fw-semibold bg-white">Saldo por circuito</div>
+  <div class="card-body">
+    <canvas id="graficaCircuitos" style="max-height: 280px;"></canvas>
+  </div>
+</div>
+
 <div class="row g-4">
 
   {# Top 5 morosas #}
@@ -133,4 +140,58 @@
   </div>
 
 </div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<script>
+(function () {
+  const datos = {{ circuitos_grafica | tojson }};
+
+  const labels = datos.map(d => d.nombre);
+  const valores = datos.map(d => d.saldo_total);
+  const colores = valores.map(v => v > 0 ? '#dc3545' : '#198754');
+
+  new Chart(document.getElementById('graficaCircuitos'), {
+    type: 'bar',
+    data: {
+      labels: labels,
+      datasets: [{
+        data: valores,
+        backgroundColor: colores,
+        borderRadius: 4,
+        borderSkipped: false,
+      }]
+    },
+    options: {
+      indexAxis: 'y',
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: ctx => '$' + ctx.parsed.x.toLocaleString('es-MX', {
+              minimumFractionDigits: 2,
+              maximumFractionDigits: 2,
+            }),
+          }
+        }
+      },
+      scales: {
+        x: {
+          beginAtZero: true,
+          ticks: {
+            callback: v => '$' + v.toLocaleString('es-MX'),
+          },
+          grid: { color: 'rgba(0,0,0,.05)' },
+        },
+        y: {
+          grid: { display: false },
+        }
+      },
+      responsive: true,
+      maintainAspectRatio: true,
+    }
+  });
+})();
+</script>
 {% endblock %}

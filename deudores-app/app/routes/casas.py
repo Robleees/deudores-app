@@ -44,20 +44,21 @@ def detalle(casa_id):
     if casa is None:
         abort(404)
 
-    transacciones = (
-        db.session.execute(
-            db.select(Transaccion)
-            .filter_by(casa_id=casa_id)
-            .order_by(Transaccion.fecha.desc())
-        )
-        .scalars()
-        .all()
+    page = request.args.get('page', 1, type=int)
+
+    paginacion = db.paginate(
+        db.select(Transaccion)
+        .filter_by(casa_id=casa_id)
+        .order_by(Transaccion.fecha.desc()),
+        page=page,
+        per_page=10,
+        error_out=False,
     )
 
     return render_template(
         'casas/detalle.html',
         casa=casa,
-        transacciones=transacciones,
+        paginacion=paginacion,
         saldo=casa.saldo_actual(),
         usuario=usuario,
     )

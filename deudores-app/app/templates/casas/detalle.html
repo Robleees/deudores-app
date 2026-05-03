@@ -106,7 +106,7 @@
 
 <h5 class="fw-semibold mb-3">Historial de transacciones</h5>
 
-{% if transacciones %}
+{% if paginacion.items %}
 <div class="card shadow-sm">
   <div class="table-responsive">
     <table class="table table-hover align-middle mb-0 small">
@@ -120,7 +120,7 @@
         </tr>
       </thead>
       <tbody>
-        {% for t in transacciones %}
+        {% for t in paginacion.items %}
         <tr>
           <td class="text-nowrap text-muted">
             {{ t.fecha.strftime('%d/%m/%Y %H:%M') }}
@@ -141,6 +141,23 @@
         {% endfor %}
       </tbody>
     </table>
+  </div>
+
+  <div class="card-footer bg-white d-flex justify-content-between align-items-center">
+    <a
+      href="{{ url_for('casas.detalle', casa_id=casa.id, page=paginacion.prev_num) }}"
+      class="btn btn-outline-secondary btn-sm {% if not paginacion.has_prev %}disabled{% endif %}"
+    >← Anterior</a>
+
+    <span class="text-muted small">
+      Página {{ paginacion.page }} de {{ paginacion.pages }}
+      &nbsp;·&nbsp; {{ paginacion.total }} transacciones
+    </span>
+
+    <a
+      href="{{ url_for('casas.detalle', casa_id=casa.id, page=paginacion.next_num) }}"
+      class="btn btn-outline-secondary btn-sm {% if not paginacion.has_next %}disabled{% endif %}"
+    >Siguiente →</a>
   </div>
 </div>
 

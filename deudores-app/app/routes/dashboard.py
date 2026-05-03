@@ -29,17 +29,16 @@ def index():
     total_casas = len(casas_activas)
     total_morosas = sum(1 for s in saldos.values() if s > 0)
 
-    circuitos_con_saldo = [
-        {
-            'circuito': c,
-            'saldo': sum(
-                saldos[casa.id]
-                for casa in casas_activas
-                if casa.circuito_id == c.id and saldos[casa.id] > 0
-            ),
-        }
-        for c in circuitos
-    ]
+    circuitos_con_saldo = []
+    circuitos_grafica = []
+    for c in circuitos:
+        saldo_total = sum(
+            saldos[casa.id]
+            for casa in casas_activas
+            if casa.circuito_id == c.id and saldos[casa.id] > 0
+        )
+        circuitos_con_saldo.append({'circuito': c, 'saldo': saldo_total})
+        circuitos_grafica.append({'nombre': c.nombre, 'saldo_total': saldo_total})
 
     top_morosas = sorted(
         [casa for casa in casas_activas if saldos[casa.id] > 0],
@@ -54,6 +53,7 @@ def index():
         total_casas=total_casas,
         total_morosas=total_morosas,
         circuitos_con_saldo=circuitos_con_saldo,
+        circuitos_grafica=circuitos_grafica,
         top_morosas=top_morosas,
         saldos=saldos,
     )
