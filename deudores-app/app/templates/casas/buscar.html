@@ -1,0 +1,80 @@
+{% extends 'base.html' %}
+
+{% block title %}Buscar casas — Gestor de Deudas{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h2 class="h4 fw-bold mb-0">Buscar casas</h2>
+</div>
+
+<div class="card shadow-sm mb-4">
+  <div class="card-body p-4">
+    <form method="get" action="{{ url_for('casas.buscar') }}" novalidate>
+      <div class="row g-2 align-items-end">
+
+        <div class="col-12 col-sm-8">
+          <label for="q" class="form-label">Nombre de familia o dirección</label>
+          <input
+            type="search"
+            id="q"
+            name="q"
+            class="form-control"
+            value="{{ q or '' }}"
+            placeholder="Ej: García, Calle Hidalgo..."
+            autofocus
+          >
+        </div>
+
+        <div class="col-12 col-sm-4">
+          <button type="submit" class="btn btn-dark w-100">Buscar</button>
+        </div>
+
+      </div>
+    </form>
+  </div>
+</div>
+
+{% if q is not none %}
+  {% if resultados %}
+  <div class="card shadow-sm">
+    <div class="table-responsive">
+      <table class="table table-hover align-middle mb-0">
+        <thead class="table-light">
+          <tr>
+            <th>Familia</th>
+            <th>Dirección</th>
+            <th>Circuito</th>
+            <th class="text-end">Saldo</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for casa in resultados %}
+          {% set saldo = casa.saldo_actual() %}
+          <tr>
+            <td class="fw-semibold">{{ casa.nombre_familia }}</td>
+            <td class="text-muted small">{{ casa.direccion }}</td>
+            <td class="text-muted small">{{ casa.circuito.nombre }}</td>
+            <td class="text-end fw-semibold {% if saldo > 0 %}text-danger{% else %}text-success{% endif %}">
+              ${{ "%.2f"|format(saldo) }}
+            </td>
+            <td class="text-end">
+              <a
+                href="{{ url_for('casas.detalle', casa_id=casa.id) }}"
+                class="btn btn-outline-dark btn-sm"
+              >Ver cuenta</a>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  {% else %}
+  <div class="text-center py-4">
+    <p class="text-muted">No se encontraron casas para <strong>"{{ q }}"</strong>.</p>
+  </div>
+  {% endif %}
+{% endif %}
+{% endblock %}

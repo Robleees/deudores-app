@@ -1,0 +1,86 @@
+{% extends 'base.html' %}
+
+{% block title %}Editar {{ casa.nombre_familia }} — Gestor de Deudas{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-12 col-md-7 col-lg-6">
+
+    <nav aria-label="breadcrumb" class="mb-3">
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item">
+          <a href="{{ url_for('circuitos.index') }}">Circuitos</a>
+        </li>
+        <li class="breadcrumb-item">
+          <a href="{{ url_for('circuitos.detalle', circuito_id=casa.circuito_id) }}">
+            {{ casa.circuito.nombre }}
+          </a>
+        </li>
+        <li class="breadcrumb-item">
+          <a href="{{ url_for('casas.detalle', casa_id=casa.id) }}">{{ casa.nombre_familia }}</a>
+        </li>
+        <li class="breadcrumb-item active">Editar</li>
+      </ol>
+    </nav>
+
+    <div class="card shadow-sm">
+      <div class="card-header fw-semibold">Editar casa</div>
+      <div class="card-body p-4">
+
+        <form method="post" action="{{ url_for('casas.editar', casa_id=casa.id) }}" novalidate>
+
+          <div class="mb-3">
+            <label for="nombre_familia" class="form-label">Nombre de la familia <span class="text-danger">*</span></label>
+            <input
+              type="text"
+              id="nombre_familia"
+              name="nombre_familia"
+              class="form-control"
+              value="{{ request.form.get('nombre_familia', casa.nombre_familia) }}"
+              maxlength="150"
+              required
+              autofocus
+            >
+          </div>
+
+          <div class="mb-3">
+            <label for="direccion" class="form-label">Dirección <span class="text-danger">*</span></label>
+            <input
+              type="text"
+              id="direccion"
+              name="direccion"
+              class="form-control"
+              value="{{ request.form.get('direccion', casa.direccion) }}"
+              maxlength="255"
+              required
+            >
+          </div>
+
+          <div class="mb-4">
+            <label for="num_personas" class="form-label">Número de personas</label>
+            <input
+              type="number"
+              id="num_personas"
+              name="num_personas"
+              class="form-control"
+              value="{{ request.form.get('num_personas', casa.num_personas) }}"
+              min="1"
+              step="1"
+            >
+          </div>
+
+          <div class="d-flex gap-2">
+            <button type="submit" class="btn btn-dark">Guardar cambios</button>
+            <a
+              href="{{ url_for('casas.detalle', casa_id=casa.id) }}"
+              class="btn btn-outline-secondary"
+            >Cancelar</a>
+          </div>
+
+        </form>
+      </div>
+    </div>
+
+  </div>
+</div>
+{% endblock %}

@@ -19,6 +19,32 @@ def _verificar_acceso_circuito(usuario, circuito_id):
         abort(403)
 
 
+@casas_bp.route('/buscar')
+@login_required
+def buscar():
+    usuario = _get_usuario_actual()
+    q = request.args.get('q', '').strip() or None
+
+    if q is None:
+        return render_template('casas/buscar.html', resultados=[], q=None, usuario=usuario)
+
+    patron = f'%{q}%'
+    consulta = db.select(Casa).filter(
+        Casa.activa == True,
+        db.or_(
+            Casa.nombre_familia.ilike(patron),
+            Casa.direccion.ilike(patron),
+        )
+    )
+
+    if not usuario.es_global:
+        consulta = consulta.filter(Casa.circuito_id == usuario.circuito_id)
+
+    resultados = db.session.execute(consulta.order_by(Casa.nombre_familia)).scalars().all()
+
+    return render_template('casas/buscar.html', resultados=resultados, q=q, usuario=usuario)
+
+
 @casas_bp.route('/<int:casa_id>')
 @login_required
 def detalle(casa_id):
@@ -107,6 +133,74 @@ def nueva():
         return redirect(url_for('casas.detalle', casa_id=casa.id))
 
     return render_template('casas/nueva.html', circuito=circuito, usuario=usuario, form={})
+
+
+@casas_bp.route('/<int:casa_id>/editar', methods=['GET', 'POST'])
+@login_required
+def editar(casa_id):
+    usuario = _get_usuario_actual()
+
+    casa = db.session.get(Casa, casa_id)
+    if casa is None:
+        abort(404)
+
+    _verificar_acceso_circuito(usuario, casa.circuito_id)
+
+    if request.method == 'POST':
+        nombre_familia = request.form.get('nombre_familia', '').strip()
+        direccion = request.form.get('direccion', '').strip()
+        num_personas_raw = request.form.get('num_personas', '1').strip()
+
+        errores = []
+        if not nombre_familia:
+            errores.append('El nombre de la familia es requerido.')
+        if not direccion:
+            errores.append('La dirección es requerida.')
+
+        try:
+            num_personas = int(num_personas_raw)
+            if num_personas < 1:
+                raise ValueError
+        except ValueError:
+            errores.append('El número de personas debe ser un entero positivo.')
+            num_personas = casa.num_personas
+
+        if errores:
+            for msg in errores:
+                flash(msg, 'danger')
+            return render_template('casas/editar.html', casa=casa, usuario=usuario)
+
+        casa.nombre_familia = nombre_familia
+        casa.direccion = direccion
+        casa.num_personas = num_personas
+        db.session.commit()
+
+        flash(f'Casa "{nombre_familia}" actualizada correctamente.', 'success')
+        return redirect(url_for('casas.detalle', casa_id=casa_id))
+
+    return render_template('casas/editar.html', casa=casa, usuario=usuario)
+
+
+@casas_bp.route('/<int:casa_id>/desactivar', methods=['POST'])
+@login_required
+def desactivar(casa_id):
+    usuario = _get_usuario_actual()
+
+    if not usuario.es_global:
+        flash('Solo los administradores globales pueden desactivar casas.', 'danger')
+        return redirect(url_for('casas.detalle', casa_id=casa_id))
+
+    casa = db.session.get(Casa, casa_id)
+    if casa is None:
+        abort(404)
+
+    circuito_id = casa.circuito_id
+    nombre = casa.nombre_familia
+    casa.activa = False
+    db.session.commit()
+
+    flash(f'Casa "{nombre}" desactivada correctamente.', 'success')
+    return redirect(url_for('circuitos.detalle', circuito_id=circuito_id))
 
 
 @casas_bp.route('/<int:casa_id>/transaccion', methods=['POST'])

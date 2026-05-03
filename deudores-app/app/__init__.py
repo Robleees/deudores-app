@@ -1,5 +1,5 @@
 import os
-from flask import Flask
+from flask import Flask, redirect, session, url_for
 from flask_sqlalchemy import SQLAlchemy
 
 db = SQLAlchemy()
@@ -24,6 +24,12 @@ def create_app():
     app.register_blueprint(auth_bp)
     app.register_blueprint(circuitos_bp)
     app.register_blueprint(casas_bp)
+
+    @app.route('/')
+    def index():
+        if 'usuario_id' in session:
+            return redirect(url_for('circuitos.index'))
+        return redirect(url_for('auth.login'))
 
     with app.app_context():
         from app import models

@@ -82,3 +82,43 @@ def nuevo():
         return redirect(url_for('circuitos.detalle', circuito_id=circuito.id))
 
     return render_template('circuitos/nuevo.html', usuario=usuario)
+
+
+@circuitos_bp.route('/<int:circuito_id>/editar', methods=['GET', 'POST'])
+@login_required
+def editar(circuito_id):
+    usuario = _get_usuario_actual()
+
+    if not usuario.es_global:
+        flash('Solo los administradores globales pueden editar circuitos.', 'danger')
+        return redirect(url_for('circuitos.detalle', circuito_id=circuito_id))
+
+    circuito = db.session.get(Circuito, circuito_id)
+    if circuito is None:
+        abort(404)
+
+    if request.method == 'POST':
+        nombre = request.form.get('nombre', '').strip()
+        descripcion = request.form.get('descripcion', '').strip()
+
+        if not nombre:
+            flash('El nombre del circuito es requerido.', 'danger')
+            return render_template('circuitos/editar.html', circuito=circuito, usuario=usuario)
+
+        duplicado = db.session.execute(
+            db.select(Circuito)
+            .filter(Circuito.nombre == nombre, Circuito.id != circuito_id)
+        ).scalar_one_or_none()
+
+        if duplicado:
+            flash(f'Ya existe otro circuito con el nombre "{nombre}".', 'danger')
+            return render_template('circuitos/editar.html', circuito=circuito, usuario=usuario)
+
+        circuito.nombre = nombre
+        circuito.descripcion = descripcion or None
+        db.session.commit()
+
+        flash(f'Circuito "{nombre}" actualizado correctamente.', 'success')
+        return redirect(url_for('circuitos.detalle', circuito_id=circuito_id))
+
+    return render_template('circuitos/editar.html', circuito=circuito, usuario=usuario)

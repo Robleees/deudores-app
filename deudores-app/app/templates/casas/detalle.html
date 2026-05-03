@@ -22,7 +22,26 @@
   <div class="col-md-7">
     <h2 class="h4 fw-bold mb-0">{{ casa.nombre_familia }}</h2>
     <p class="text-muted mb-0">{{ casa.direccion }}</p>
-    <p class="text-muted small">{{ casa.num_personas }} persona{% if casa.num_personas != 1 %}s{% endif %}</p>
+    <p class="text-muted small mb-3">{{ casa.num_personas }} persona{% if casa.num_personas != 1 %}s{% endif %}</p>
+    <div class="d-flex gap-2 flex-wrap">
+      <a
+        href="{{ url_for('casas.editar', casa_id=casa.id) }}"
+        class="btn btn-outline-dark btn-sm"
+      >Editar casa</a>
+      {% if usuario.es_global %}
+      <form
+        method="post"
+        action="{{ url_for('casas.desactivar', casa_id=casa.id) }}"
+        class="d-inline"
+      >
+        <button
+          type="submit"
+          class="btn btn-outline-danger btn-sm"
+          onclick="return confirm('¿Desactivar esta casa? Ya no aparecerá en el circuito.')"
+        >Desactivar casa</button>
+      </form>
+      {% endif %}
+    </div>
   </div>
 
   <div class="col-md-5">
