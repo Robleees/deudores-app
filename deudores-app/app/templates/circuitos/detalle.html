@@ -1,0 +1,76 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ circuito.nombre }} — Gestor de Deudas{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-start mb-4">
+  <div>
+    <nav aria-label="breadcrumb">
+      <ol class="breadcrumb mb-1">
+        <li class="breadcrumb-item">
+          <a href="{{ url_for('circuitos.index') }}">Circuitos</a>
+        </li>
+        <li class="breadcrumb-item active">{{ circuito.nombre }}</li>
+      </ol>
+    </nav>
+    <h2 class="h4 fw-bold mb-0">{{ circuito.nombre }}</h2>
+    {% if circuito.descripcion %}
+    <p class="text-muted small mt-1 mb-0">{{ circuito.descripcion }}</p>
+    {% endif %}
+  </div>
+  <a
+    href="{{ url_for('casas.nueva', circuito_id=circuito.id) }}"
+    class="btn btn-dark btn-sm"
+  >+ Nueva casa</a>
+</div>
+
+<div class="card shadow-sm mb-4 border-0 bg-dark text-white" style="max-width: 260px;">
+  <div class="card-body py-3">
+    <p class="text-white-50 small mb-1 text-uppercase fw-semibold">Saldo total acumulado</p>
+    <p class="fs-3 fw-bold mb-0">${{ "%.2f"|format(saldo_total) }}</p>
+  </div>
+</div>
+
+{% if casas %}
+<div class="card shadow-sm">
+  <div class="table-responsive">
+    <table class="table table-hover align-middle mb-0">
+      <thead class="table-light">
+        <tr>
+          <th>Familia</th>
+          <th>Dirección</th>
+          <th class="text-end">Saldo</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for casa in casas %}
+        {% set saldo = casa.saldo_actual() %}
+        <tr>
+          <td class="fw-semibold">{{ casa.nombre_familia }}</td>
+          <td class="text-muted small">{{ casa.direccion }}</td>
+          <td class="text-end fw-semibold {% if saldo > 0 %}text-danger{% else %}text-success{% endif %}">
+            ${{ "%.2f"|format(saldo) }}
+          </td>
+          <td class="text-end">
+            <a
+              href="{{ url_for('casas.detalle', casa_id=casa.id) }}"
+              class="btn btn-outline-dark btn-sm"
+            >Ver cuenta</a>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+{% else %}
+<div class="text-center py-5">
+  <p class="text-muted">No hay casas registradas en este circuito.</p>
+  <a href="{{ url_for('casas.nueva', circuito_id=circuito.id) }}" class="btn btn-dark mt-2">
+    Registrar primera casa
+  </a>
+</div>
+{% endif %}
+{% endblock %}

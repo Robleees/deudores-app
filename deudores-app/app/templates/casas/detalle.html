@@ -1,0 +1,131 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ casa.nombre_familia }} — Gestor de Deudas{% endblock %}
+
+{% block content %}
+<nav aria-label="breadcrumb" class="mb-3">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item">
+      <a href="{{ url_for('circuitos.index') }}">Circuitos</a>
+    </li>
+    <li class="breadcrumb-item">
+      <a href="{{ url_for('circuitos.detalle', circuito_id=casa.circuito_id) }}">
+        {{ casa.circuito.nombre }}
+      </a>
+    </li>
+    <li class="breadcrumb-item active">{{ casa.nombre_familia }}</li>
+  </ol>
+</nav>
+
+<div class="row align-items-start g-4 mb-4">
+
+  <div class="col-md-7">
+    <h2 class="h4 fw-bold mb-0">{{ casa.nombre_familia }}</h2>
+    <p class="text-muted mb-0">{{ casa.direccion }}</p>
+    <p class="text-muted small">{{ casa.num_personas }} persona{% if casa.num_personas != 1 %}s{% endif %}</p>
+  </div>
+
+  <div class="col-md-5">
+    <div class="card border-0 shadow-sm {% if saldo > 0 %}bg-danger{% else %}bg-success{% endif %} text-white">
+      <div class="card-body py-3 text-end">
+        <p class="small text-white-50 mb-1 text-uppercase fw-semibold">Saldo actual</p>
+        <p class="fs-2 fw-bold mb-0">${{ "%.2f"|format(saldo) }}</p>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div class="card shadow-sm mb-5">
+  <div class="card-header fw-semibold bg-white">Registrar movimiento</div>
+  <div class="card-body">
+    <form method="post" action="{{ url_for('casas.registrar_transaccion', casa_id=casa.id) }}" novalidate>
+      <div class="row g-2 align-items-end">
+
+        <div class="col-12 col-sm-3">
+          <label class="form-label small mb-1">Tipo</label>
+          <select name="tipo" class="form-select form-select-sm" required>
+            <option value="cargo">Cargo</option>
+            <option value="abono">Abono</option>
+          </select>
+        </div>
+
+        <div class="col-12 col-sm-3">
+          <label class="form-label small mb-1">Monto ($)</label>
+          <input
+            type="number"
+            name="monto"
+            class="form-control form-control-sm"
+            placeholder="0.00"
+            min="0.01"
+            step="0.01"
+            required
+          >
+        </div>
+
+        <div class="col-12 col-sm-4">
+          <label class="form-label small mb-1">Descripción <span class="text-muted">(opcional)</span></label>
+          <input
+            type="text"
+            name="descripcion"
+            class="form-control form-control-sm"
+            placeholder="Ej: semana del lunes..."
+            maxlength="255"
+          >
+        </div>
+
+        <div class="col-12 col-sm-2">
+          <button type="submit" class="btn btn-dark btn-sm w-100">Registrar</button>
+        </div>
+
+      </div>
+    </form>
+  </div>
+</div>
+
+<h5 class="fw-semibold mb-3">Historial de transacciones</h5>
+
+{% if transacciones %}
+<div class="card shadow-sm">
+  <div class="table-responsive">
+    <table class="table table-hover align-middle mb-0 small">
+      <thead class="table-light">
+        <tr>
+          <th>Fecha</th>
+          <th>Tipo</th>
+          <th>Descripción</th>
+          <th class="text-end">Monto</th>
+          <th>Registró</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for t in transacciones %}
+        <tr>
+          <td class="text-nowrap text-muted">
+            {{ t.fecha.strftime('%d/%m/%Y %H:%M') }}
+          </td>
+          <td>
+            {% if t.tipo == 'cargo' %}
+              <span class="badge bg-danger">Cargo</span>
+            {% else %}
+              <span class="badge bg-success">Abono</span>
+            {% endif %}
+          </td>
+          <td class="text-muted">{{ t.descripcion or '—' }}</td>
+          <td class="text-end fw-semibold {% if t.tipo == 'cargo' %}text-danger{% else %}text-success{% endif %}">
+            ${{ "%.2f"|format(t.monto) }}
+          </td>
+          <td class="text-muted">{{ t.usuario.nombre }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+{% else %}
+<div class="text-center py-4">
+  <p class="text-muted">No hay transacciones registradas para esta casa.</p>
+</div>
+{% endif %}
+{% endblock %}

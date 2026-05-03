@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+
+{% block title %}Iniciar sesión — Gestor de Deudas{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center mt-5">
+  <div class="col-12 col-sm-8 col-md-6 col-lg-4">
+
+    <div class="card shadow-sm">
+      <div class="card-body p-4">
+
+        <h1 class="h4 text-center mb-1 fw-bold">Gestor de Deudas</h1>
+        <p class="text-center text-muted small mb-4">Ingresa tus credenciales para continuar</p>
+
+        <form method="post" action="{{ url_for('auth.login_post') }}" novalidate>
+
+          <div class="mb-3">
+            <label for="username" class="form-label">Usuario</label>
+            <input
+              type="text"
+              id="username"
+              name="username"
+              class="form-control"
+              placeholder="tu_usuario"
+              autocomplete="username"
+              autofocus
+              required
+            >
+          </div>
+
+          <div class="mb-4">
+            <label for="password" class="form-label">Contraseña</label>
+            <input
+              type="password"
+              id="password"
+              name="password"
+              class="form-control"
+              autocomplete="current-password"
+              required
+            >
+          </div>
+
+          <div class="d-grid">
+            <button type="submit" class="btn btn-dark">Iniciar sesión</button>
+          </div>
+
+        </form>
+      </div>
+    </div>
+
+  </div>
+</div>
+{% endblock %}
