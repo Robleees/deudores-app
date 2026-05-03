@@ -1,0 +1,136 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard — Gestor de Deudas{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h2 class="h4 fw-bold mb-0">Dashboard</h2>
+  <span class="text-muted small">Bienvenido, {{ usuario.nombre }}</span>
+</div>
+
+{# KPI cards #}
+<div class="row g-3 mb-5">
+
+  <div class="col-6 col-lg-3">
+    <div class="card border-0 shadow-sm h-100">
+      <div class="card-body">
+        <p class="text-muted small text-uppercase fw-semibold mb-1">Total adeudado</p>
+        <p class="fs-4 fw-bold text-danger mb-0">${{ "%.2f"|format(total_adeudado) }}</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-6 col-lg-3">
+    <div class="card border-0 shadow-sm h-100">
+      <div class="card-body">
+        <p class="text-muted small text-uppercase fw-semibold mb-1">Casas activas</p>
+        <p class="fs-4 fw-bold mb-0">{{ total_casas }}</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-6 col-lg-3">
+    <div class="card border-0 shadow-sm h-100">
+      <div class="card-body">
+        <p class="text-muted small text-uppercase fw-semibold mb-1">Casas morosas</p>
+        <p class="fs-4 fw-bold text-danger mb-0">{{ total_morosas }}</p>
+        {% if total_casas > 0 %}
+        <p class="text-muted small mb-0">
+          {{ "%.0f"|format(total_morosas / total_casas * 100) }}% del total
+        </p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <div class="col-6 col-lg-3">
+    <div class="card border-0 shadow-sm h-100">
+      <div class="card-body">
+        <p class="text-muted small text-uppercase fw-semibold mb-1">Circuitos activos</p>
+        <p class="fs-4 fw-bold mb-0">{{ circuitos_con_saldo | length }}</p>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div class="row g-4">
+
+  {# Top 5 morosas #}
+  <div class="col-12 col-lg-7">
+    <h5 class="fw-semibold mb-3">Top 5 casas morosas</h5>
+    {% if top_morosas %}
+    <div class="card shadow-sm">
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0 small">
+          <thead class="table-light">
+            <tr>
+              <th>#</th>
+              <th>Familia</th>
+              <th>Circuito</th>
+              <th>Dirección</th>
+              <th class="text-end">Saldo</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for casa in top_morosas %}
+            <tr>
+              <td class="text-muted">{{ loop.index }}</td>
+              <td>
+                <a
+                  href="{{ url_for('casas.detalle', casa_id=casa.id) }}"
+                  class="fw-semibold text-decoration-none text-dark"
+                >{{ casa.nombre_familia }}</a>
+              </td>
+              <td class="text-muted">{{ casa.circuito.nombre }}</td>
+              <td class="text-muted">{{ casa.direccion }}</td>
+              <td class="text-end fw-semibold text-danger">
+                ${{ "%.2f"|format(saldos[casa.id]) }}
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+    {% else %}
+    <div class="card shadow-sm">
+      <div class="card-body text-center py-4 text-muted">
+        No hay casas con saldo pendiente.
+      </div>
+    </div>
+    {% endif %}
+  </div>
+
+  {# Saldo por circuito #}
+  <div class="col-12 col-lg-5">
+    <h5 class="fw-semibold mb-3">Saldo por circuito</h5>
+    <div class="d-flex flex-column gap-3">
+      {% for item in circuitos_con_saldo %}
+      <div class="card shadow-sm border-0">
+        <div class="card-body d-flex justify-content-between align-items-center py-3">
+          <div>
+            <p class="fw-semibold mb-0">{{ item.circuito.nombre }}</p>
+            {% if item.circuito.descripcion %}
+            <p class="text-muted small mb-0">{{ item.circuito.descripcion }}</p>
+            {% endif %}
+          </div>
+          <div class="text-end ms-3">
+            <p class="fw-bold mb-1 {% if item.saldo > 0 %}text-danger{% else %}text-success{% endif %}">
+              ${{ "%.2f"|format(item.saldo) }}
+            </p>
+            <a
+              href="{{ url_for('circuitos.detalle', circuito_id=item.circuito.id) }}"
+              class="btn btn-outline-dark btn-sm"
+            >Ver detalle</a>
+          </div>
+        </div>
+      </div>
+      {% else %}
+      <p class="text-muted">No hay circuitos disponibles.</p>
+      {% endfor %}
+    </div>
+  </div>
+
+</div>
+{% endblock %}

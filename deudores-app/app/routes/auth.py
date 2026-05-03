@@ -21,7 +21,7 @@ def login_required(f):
 @auth_bp.route('/login', methods=['GET'])
 def login():
     if 'usuario_id' in session:
-        return redirect(url_for('circuitos.index'))
+        return redirect(url_for('dashboard.index'))
     return render_template('auth/login.html')
 
 
@@ -46,7 +46,7 @@ def login_post():
     session['usuario_id'] = usuario.id
     session['rol'] = usuario.rol
 
-    return redirect(url_for('circuitos.index'))
+    return redirect(url_for('dashboard.index'))
 
 
 @auth_bp.route('/logout')
