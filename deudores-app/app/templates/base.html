@@ -49,6 +49,13 @@
 
         {% if session.get('usuario_id') and usuario is defined %}
         <div class="d-flex align-items-center gap-3">
+          {% if usuario.es_global %}
+          <a
+            href="{{ url_for('export.transacciones') }}"
+            class="btn btn-outline-light btn-sm"
+            title="Exportar todo a Excel"
+          >⬇ Excel</a>
+          {% endif %}
           <span class="text-white-50 small">
             {{ usuario.nombre }}
             {% if usuario.es_global %}

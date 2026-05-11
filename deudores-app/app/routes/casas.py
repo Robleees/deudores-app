@@ -188,6 +188,26 @@ def desactivar(casa_id):
     return redirect(url_for('circuitos.detalle', circuito_id=circuito_id))
 
 
+@casas_bp.route('/<int:casa_id>/transacciones/<int:transaccion_id>/eliminar', methods=['POST'])
+@login_required
+def eliminar_transaccion(casa_id, transaccion_id):
+    usuario = _get_usuario_actual()
+
+    if not usuario.es_global:
+        flash('Solo los administradores globales pueden eliminar transacciones.', 'danger')
+        return redirect(url_for('casas.detalle', casa_id=casa_id))
+
+    transaccion = db.session.get(Transaccion, transaccion_id)
+    if transaccion is None or transaccion.casa_id != casa_id:
+        abort(404)
+
+    db.session.delete(transaccion)
+    db.session.commit()
+
+    flash('Transacción eliminada correctamente.', 'success')
+    return redirect(url_for('casas.detalle', casa_id=casa_id))
+
+
 @casas_bp.route('/<int:casa_id>/transaccion', methods=['POST'])
 @login_required
 def registrar_transaccion(casa_id):

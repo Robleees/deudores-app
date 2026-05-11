@@ -117,6 +117,7 @@
           <th>Descripción</th>
           <th class="text-end">Monto</th>
           <th>Registró</th>
+          {% if usuario.es_global %}<th></th>{% endif %}
         </tr>
       </thead>
       <tbody>
@@ -137,6 +138,22 @@
             ${{ "%.2f"|format(t.monto) }}
           </td>
           <td class="text-muted">{{ t.usuario.nombre }}</td>
+          {% if usuario.es_global %}
+          <td>
+            <form
+              method="post"
+              action="{{ url_for('casas.eliminar_transaccion', casa_id=casa.id, transaccion_id=t.id) }}"
+              class="d-inline"
+            >
+              <button
+                type="submit"
+                class="btn btn-link text-danger p-0 border-0"
+                title="Eliminar transacción"
+                onclick="return confirm('¿Eliminar esta transacción? Esta acción no se puede deshacer.')"
+              >✕</button>
+            </form>
+          </td>
+          {% endif %}
         </tr>
         {% endfor %}
       </tbody>
